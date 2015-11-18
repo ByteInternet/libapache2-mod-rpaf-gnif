@@ -81,7 +81,7 @@ static void *rpaf_create_server_cfg(apr_pool_t *p, server_rec *s) {
 /* quick check for ipv4/6 likelihood; similar to Apache2.4 mod_remoteip check */
 static int rpaf_looks_like_ip(const char *ip) {
     static const char ipv4_set[] = "0123456789./";
-    static const char ipv6_set[] = "0123456789abcdef:/";
+    static const char ipv6_set[] = "0123456789abcdef:/.";
 
     /* zero length value is not valid */
     if (!*ip)
@@ -216,6 +216,7 @@ static apr_status_t rpaf_cleanup(void *data) {
     rpaf_cleanup_rec *rcr = (rpaf_cleanup_rec *)data;
     rcr->r->DEF_IP = apr_pstrdup(rcr->r->connection->pool, rcr->old_ip);
     rcr->r->DEF_ADDR->sa.sin.sin_addr.s_addr = apr_inet_addr(rcr->r->DEF_IP);
+    apr_table_unset(rcr->r->connection->notes, "rpaf_https");
     return APR_SUCCESS;
 }
 
